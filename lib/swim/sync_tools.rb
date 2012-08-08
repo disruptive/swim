@@ -1,25 +1,31 @@
-require 'active_support/all'
-
 class SyncSettingsMissing < StandardError
 end
 
-class SettingsFileMissing < StandardError
+class SettingsPathMissing < StandardError
+end
+
+class ComparisonHashMissing < StandardError
+end
+
+class InvalidSettingsPath < StandardError
 end
 
 
+# Tools for syncing a tree of ActiveRecord objects using a JSON file.
 class SyncTools
-    
-  def self.json_file(settings_filename)
-    file = File.open(settings_filename, "rb")
-    contents = file.read
-    ActiveSupport::JSON.decode(contents)
+  
+  # Save a JSON representaton of the object to a file, specified by  
+  def self.save_settings(obj)
+    str = obj.to_json(:include => obj.class.sync_settings )    
+    File.open(File.expand_path(obj.settings_path), 'w+') {|f| f.write(str) }
   end
-    
+  
+  # compares a tree of ActiveRecord objects to a previously-saved JSON file  
   def self.compare_json_file(obj)    
-    unless obj.methods.include?(:settings_file) || obj.methods.include?('settings_file')
-      raise SettingsFileMissing, "#{obj.class.to_s} must define a class method named settings_file."
+    unless obj.methods.include?(:settings_path) || obj.methods.include?('settings_path')
+      raise SettingsPathMissing, "#{obj.class.to_s} must define a class method named settings_file."
     end
-    json = json_file(obj.settings_file)
+    json = json_file(File.expand_path(obj.settings_path))
     
     unless obj.class.methods.include?(:sync_settings) || obj.class.methods.include?("sync_settings")
       raise SyncSettingsMissing, "#{obj.class.to_s} must define a class method named sync_settings that returns a hash."
@@ -32,8 +38,8 @@ class SyncTools
     end
   end
     
-  def self.import_json_file(obj, settings_filename)
-    changes = Swim::SyncTools.compare_json_file(self, settings_file)
+  def self.import_json_file(obj, settings_path)
+    changes = Swim::SyncTools.compare_json_file(self, settings_path)
     completed = []
     not_completed = []
     changes.each do |ch|
@@ -72,6 +78,7 @@ class SyncTools
         value = value.utc.to_s
       end
       unless value == hsh_value
+        # p "#{obj.class.to_s} #{obj.id} #{key} #{value} != #{hsh_value}"
         @changes << Swim::Change.new(:obj_class => obj.class.to_s, :obj_id => obj.id, :change_type => :update, :key => key, :old_value => value, :new_value => hsh_value)
       else
         # p "#{obj.class.to_s} #{key} #{value} == #{hsh_value}"
@@ -84,7 +91,7 @@ class SyncTools
     if arr.length == 0 && hsh.nil?
       return
     elsif hsh.nil?
-      throw "Array (#{arr.collect{|ar| ar.class.to_s }}) has no hash for comparison"
+      raise ComparisonHashMissing, "Array (#{arr.collect{|ar| ar.class.to_s }}) has no hash for comparison"
     end
     hsh_members = hsh.collect{ |h| h["id"] }
     arr.each do |a|
@@ -102,5 +109,11 @@ class SyncTools
       end
     end
   end
-		
+  
+  # loads and decodes a specified json_file  
+  def self.json_file(settings_path)
+    file = File.open(settings_path, "rb")
+    contents = file.read
+    ActiveSupport::JSON.decode(contents)
+  end
 end

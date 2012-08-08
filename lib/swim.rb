@@ -1,3 +1,5 @@
+require 'multi_json'
+
 module Swim
   require "swim/version"
   require "swim/change"
