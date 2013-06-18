@@ -20,19 +20,19 @@ Or install it yourself as:
 
 1. Add a settings_file instance method to your ActiveRecord class.
 
-		class Artist < ActiveRecord::Base
-			def settings_file
-				File.expand_path("/sample_files/artist_1_settings.json")
-			end
-		end
-	
+    class Artist < ActiveRecord::Base
+      def settings_file
+        File.expand_path("/sample_files/artist_1_settings.json")
+      end
+    end
+
 2. Add a sync_settings class method to your ActiveRecord class.
 
-		class Artist < ActiveRecord::Base
-		  def self.sync_settings
-		    { :albums => {} }
-		  end
-		end
+    class Artist < ActiveRecord::Base
+      def self.sync_settings
+        { :albums => {} }
+      end
+    end
 
 ## Contributing
 

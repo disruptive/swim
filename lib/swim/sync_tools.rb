@@ -13,31 +13,31 @@ end
 
 # Tools for syncing a tree of ActiveRecord objects using a JSON file.
 class SyncTools
-  
-  # Save a JSON representaton of the object to a file, specified by  
+
+  # Save a JSON representaton of the object to a file, specified by
   def self.save_settings(obj)
-    str = obj.to_json(:include => obj.class.sync_settings )    
+    str = obj.to_json(:include => obj.class.sync_settings )
     File.open(File.expand_path(obj.settings_path), 'w+') {|f| f.write(str) }
   end
-  
-  # compares a tree of ActiveRecord objects to a previously-saved JSON file  
-  def self.compare_json_file(obj)    
+
+  # compares a tree of ActiveRecord objects to a previously-saved JSON file
+  def self.compare_json_file(obj)
     unless obj.methods.include?(:settings_path) || obj.methods.include?('settings_path')
       raise SettingsPathMissing, "#{obj.class.to_s} must define a class method named settings_file."
     end
     json = json_file(File.expand_path(obj.settings_path))
-    
+
     unless obj.class.methods.include?(:sync_settings) || obj.class.methods.include?("sync_settings")
       raise SyncSettingsMissing, "#{obj.class.to_s} must define a class method named sync_settings that returns a hash."
     end
-    
+
     if json[obj.class.to_s.underscore].class.to_s == "Hash"
       return compare(obj, json[obj.class.to_s.underscore], obj.class.sync_settings)
     else
       return compare(obj, json, obj.class.sync_settings)
     end
   end
-    
+
   def self.import_json_file(obj, settings_path)
     changes = Swim::SyncTools.compare_json_file(self, settings_path)
     completed = []
@@ -52,13 +52,13 @@ class SyncTools
     end
     return { :status => (not_completed.length > 0 ? "incomplete" : "complete"), :changed => completed, :not_completed => not_completed }
   end
-	
-  def self.compare(obj, hsh, settings) 
+
+  def self.compare(obj, hsh, settings)
     @changes = []
     if settings.present? && settings[:include]
       settings[:include].keys.each do |sk|
         compare_array(obj.send(sk), hsh[sk.to_s], settings[sk], sk)
-      end      
+      end
     elsif settings.present? && settings.keys
       settings.keys.each do |sk|
         compare_array(obj.send(sk), hsh[sk.to_s], settings[sk.to_sym], sk)
@@ -88,7 +88,7 @@ class SyncTools
     end
     return @changes
   end
-  
+
   def self.compare_array(arr, hsh, settings, obj_classname)
     if arr.length == 0 && hsh.nil?
       return
@@ -111,8 +111,8 @@ class SyncTools
       end
     end
   end
-  
-  # loads and decodes a specified json_file  
+
+  # loads and decodes a specified json_file
   def self.json_file(settings_path)
     file = File.open(settings_path, "rb")
     contents = file.read
