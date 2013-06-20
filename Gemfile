@@ -6,4 +6,3 @@ gemspec
 gem 'rake'
 gem 'activesupport'
 gem 'activerecord'
-gem 'multi_json'

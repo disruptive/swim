@@ -68,20 +68,30 @@ class SyncTools
     obj.attributes.each_pair do |key, value|
       hsh_value = hsh[key]
 
-      if value.is_a?(Time) && hsh_value.class == String
-        hsh_value = Time.parse(hsh_value).utc.to_s
-        value = value.utc.to_s
+      if (value.is_a?(Time) || value.is_a?(DateTime))&& hsh_value.class == String
+        p "Comparing a Time with a String"
+        hsh_value = Time.parse(hsh_value).utc
+        value = value.utc
       elsif hsh_value.is_a?(Time) && value.class == String
-        hsh_value = hsh_value.utc.to_s
-        value = Time.parse(value).utc.to_s
+        p "Comparing a String with a Time"
+        hsh_value = hsh_value.utc
+        value = Time.parse(value).utc
       elsif hsh_value.is_a?(Time) && value.is_a?(Time)
-        hsh_value = hsh_value.utc.to_s
-        value = value.utc.to_s
+        p "Comparing a Time with a Time"
+        hsh_value = hsh_value.utc
+        value = value.utc
       end
 
       unless value == hsh_value
-        # p "#{obj.class.to_s} #{obj.id} #{key} #{value} != #{hsh_value}"
-        @changes << Swim::Change.new(:obj_class => obj.class.to_s, :obj_id => obj.id, :change_type => :update, :key => key, :old_value => value, :new_value => hsh_value)
+        p "#{obj.class.to_s} #{obj.id} =====> Key: #{key} #{value.class} #{value} != #{hsh_value.class} #{hsh_value}"
+        @changes << Swim::Change.new(
+                      :obj_class    => obj.class.to_s,
+                      :obj_id       => obj.id,
+                      :change_type  => :update,
+                      :key          => key,
+                      :old_value    => value,
+                      :new_value    => hsh_value
+                    )
       else
         # p "#{obj.class.to_s} #{key} #{value} == #{hsh_value}"
       end

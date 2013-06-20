@@ -1,1 +1,1 @@
-{"artist":{"created_at":"2012-07-03T14:02:14-04:00","id":2,"name":"Billy Preston","updated_at":"2012-07-03T14:02:14-04:00","albums":[{"artist_id":2,"created_at":"2012-07-03T14:02:14-04:00","id":2,"title":"The Best of Billy Preston","updated_at":"2012-07-03T14:02:14-04:00"}]}}
+{"artist":{"id":2,"name":"Billy Preston","created_at":"2012-07-03T14:02:14Z","updated_at":"2012-07-03T14:02:14Z","albums":[{"id":2,"title":"The Best of Billy Preston","artist_id":2,"created_at":"2012-07-03T14:02:14Z","updated_at":"2012-07-03T14:02:14Z"}]}}

@@ -13,10 +13,17 @@ end
 
 require 'active_record'
 
+# ActiveRecord.default_timezone = "Eastern Time (US & Canada)"
+# config.time_zone = "Eastern Time (US & Canada)"
+
+#Time.zone = "Eastern Time (US & Canada)"
+#ActiveRecord::Base.time_zone_aware_attributes = true
+#ActiveRecord::Base.default_timezone = "Eastern Time (US & Canada)"
+
 ActiveRecord::Base.establish_connection(
  { :adapter => 'sqlite3', :database => File.dirname(__FILE__) + "/db/development.sqlite3" }
 )
 
-Dir[File.dirname(__FILE__) + '/sample_models/*.rb'].each do |file| 
+Dir[File.dirname(__FILE__) + '/sample_models/*.rb'].each do |file|
   require file
 end

@@ -1,5 +1,6 @@
 # sync_tools_spec.rb
 require 'spec_helper'
+require 'swim'
 require 'swim/change'
 require 'swim/sync_tools'
 
